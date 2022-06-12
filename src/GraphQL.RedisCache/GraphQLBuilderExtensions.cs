@@ -1,3 +1,4 @@
+using Forbids;
 using GraphQL.Caching;
 using GraphQL.DI;
 
@@ -6,20 +7,23 @@ namespace GraphQL.RedisCache;
 public static class GraphQLBuilderExtensions
 {
     /// <summary>
-    /// Registers <see cref="AddRedisCache"/> as a singleton of type <see cref="IDocumentCache"/> within the
-    /// dependency injection framework, and configures it with the specified configuration delegate.
+    /// Registers <see cref="RedisDocumentCache"/> as a singleton of type <see cref="IDocumentCache"/> within the
+    /// dependency injection framework.
     /// </summary>
-    public static IGraphQLBuilder AddRedisCache(this IGraphQLBuilder builder,
-        Action<RedisDocumentCacheOptions>? action = null)
+    /// <param name="builder">The <see cref="IGraphQLBuilder"/>.</param>
+    /// <param name="action">The configuration delegate.</param>
+    public static IGraphQLBuilder AddRedisCache(this IGraphQLBuilder builder, Action<RedisDocumentCacheOptions> action)
     {
+        Forbid.From.Null(action);
         builder.Services.Configure(action);
         return builder.AddDocumentCache<RedisDocumentCache>();
     }
 
-    /// <inheritdoc cref="AddRedisCache(IGraphQLBuilder, Action{RedisDocumentCacheOptions})"/>
-    public static IGraphQLBuilder AddMemoryCache(this IGraphQLBuilder builder,
-        Action<RedisDocumentCacheOptions, IServiceProvider>? action)
+    /// <inheritdoc cref="AddRedisCache(GraphQL.DI.IGraphQLBuilder,System.Action{GraphQL.RedisCache.RedisDocumentCacheOptions})"/>
+    public static IGraphQLBuilder AddRedisCache(this IGraphQLBuilder builder,
+        Action<RedisDocumentCacheOptions, IServiceProvider> action)
     {
+        Forbid.From.Null(action);
         builder.Services.Configure(action);
         return builder.AddDocumentCache<RedisDocumentCache>();
     }
