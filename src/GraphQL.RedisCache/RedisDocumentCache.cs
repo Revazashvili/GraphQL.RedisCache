@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Forbids;
 using GraphQL.Caching;
 using GraphQLParser.AST;
 using Microsoft.Extensions.Caching.Distributed;
@@ -13,12 +14,13 @@ public class RedisDocumentCache : IDocumentCache
     
     public RedisDocumentCache(IDistributedCache distributedCache,IOptions<RedisDocumentCacheOptions> options)
     {
-        _distributedCache = distributedCache;
-        _redisDocumentCacheOptions = options.Value;
+        _distributedCache = Forbid.From.Null(distributedCache);
+        _redisDocumentCacheOptions = Forbid.From.Null(options.Value);
     }
     
     public async ValueTask<GraphQLDocument?> GetAsync(string query)
     {
+        Forbid.From.NullOrEmpty(query);
         var cacheItemAsString = await _distributedCache.GetStringAsync(query);
         if (string.IsNullOrEmpty(cacheItemAsString))
             return null;
@@ -29,8 +31,8 @@ public class RedisDocumentCache : IDocumentCache
 
     public async ValueTask SetAsync(string query, GraphQLDocument value)
     {
-        if (value is null)
-            throw new ArgumentNullException();
+        Forbid.From.NullOrEmpty(query);
+        Forbid.From.Null(value);
 
         var valueAsString = JsonSerializer.Serialize(value);
         await _distributedCache.SetStringAsync(query, valueAsString, new DistributedCacheEntryOptions
