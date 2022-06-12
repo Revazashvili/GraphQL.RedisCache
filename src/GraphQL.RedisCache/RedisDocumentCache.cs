@@ -10,12 +10,12 @@ namespace GraphQL.RedisCache;
 public class RedisDocumentCache : IDocumentCache
 {
     private readonly IDistributedCache _distributedCache;
-    private readonly RedisDocumentCacheOptions _redisDocumentCacheOptions;
+    private readonly RedisDocumentCacheOptions _options;
     
     public RedisDocumentCache(IDistributedCache distributedCache,IOptions<RedisDocumentCacheOptions> options)
     {
         _distributedCache = Forbid.From.Null(distributedCache);
-        _redisDocumentCacheOptions = Forbid.From.Null(options.Value);
+        _options = Forbid.From.Null(options.Value);
     }
     
     public async ValueTask<GraphQLDocument?> GetAsync(string query)
@@ -37,9 +37,9 @@ public class RedisDocumentCache : IDocumentCache
         var valueAsString = JsonSerializer.Serialize(value);
         await _distributedCache.SetStringAsync(query, valueAsString, new DistributedCacheEntryOptions
         {
-            AbsoluteExpiration = _redisDocumentCacheOptions.AbsoluteExpiration,
-            SlidingExpiration = _redisDocumentCacheOptions.SlidingExpiration,
-            AbsoluteExpirationRelativeToNow = _redisDocumentCacheOptions.AbsoluteExpirationRelativeToNow
+            AbsoluteExpiration = _options.AbsoluteExpiration,
+            SlidingExpiration = _options.SlidingExpiration,
+            AbsoluteExpirationRelativeToNow = _options.AbsoluteExpirationRelativeToNow
         });
     }
 }
